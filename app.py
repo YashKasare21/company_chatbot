@@ -17,13 +17,13 @@ query = st.text_input("Ask a question about your documents:")
 if query:
     with st.spinner("Searching for answers..."):
         answer, sources = rag_pipeline.run(query)
-        st.write("**Answer:**", answer)
+        st.markdown(f"**Answer:** {answer}")
 
         if sources:
             st.subheader("Source Documents:")
-            for source in sources:
-                st.write(f"- {os.path.basename(source.metadata['source'])} (Page {source.metadata['page']})")
+            for i, source in enumerate(sources):
+                st.markdown(f"**Source {i+1}:** {os.path.basename(source.metadata['source'])} (Page {source.metadata['page']})")
                 with st.expander("View Snippet"):
-                    st.write(source.page_content)
+                    st.markdown(source.page_content)
         else:
             st.info("No specific source documents found for this query.")
