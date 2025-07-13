@@ -1,10 +1,11 @@
 import os
 import os
-from langchain_community.embeddings import SentenceTransformerEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from ctransformers import AutoModelForCausalLM
+from langchain_groq import ChatGroq
+from dotenv import load_dotenv
 
-LLM_MODEL_PATH = "models/mistral-7b-instruct-v0.1.Q4_K_M.gguf"
+load_dotenv()
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 
@@ -14,7 +15,7 @@ FAISS_INDEX_PATH = "vectorstore/faiss_index"
 
 class RAGPipeline:
     def __init__(self):
-        self.embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+        self.embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-base-en-v1.5")
         self.vectorstore = self._load_vectorstore()
         self.llm = self._load_llm()
         self.qa_chain = self._setup_qa_chain()
@@ -29,12 +30,10 @@ class RAGPipeline:
         return FAISS.load_local(FAISS_INDEX_PATH, self.embeddings, allow_dangerous_deserialization=True)
 
     def _load_llm(self):
-        print("Loading LLM from local GGUF model...")
-        return AutoModelForCausalLM.from_pretrained(
-            LLM_MODEL_PATH,
-            model_type="mistral",
-            max_new_tokens=1024,
-            temperature=0.01
+        print("Loading LLM from Groq API...")
+        return ChatGroq(
+            temperature=0.1,
+            model_name="llama3-8b-8192"
         )
 
     def _setup_qa_chain(self):
@@ -80,4 +79,4 @@ if __name__ == "__main__":
             print(f"  Snippet: {source.page_content[:200]}...")
     except FileNotFoundError as e:
         print(f"Error: {e}")
-        print("Please ensure you have run `python ingest.py` and downloaded the LLM model.")
+        print("Please ensure you have run `python ingest.py` and set your GROQ_API_KEY in a .env file.")

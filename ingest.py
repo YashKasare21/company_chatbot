@@ -1,6 +1,6 @@
 import os
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import SentenceTransformerEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from utils import load_pdfs
 
@@ -23,8 +23,8 @@ def ingest_documents():
     print(f"Split into {len(chunks)} chunks.")
 
     print("Creating embeddings... This may take a while.")
-    # Using a local sentence-transformer model for embeddings
-    embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+    # Using HuggingFaceEmbeddings for embeddings
+    embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-base-en-v1.5")
 
     print("Creating FAISS index...")
     # Create FAISS index from chunks and embeddings
